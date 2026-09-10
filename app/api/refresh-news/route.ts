@@ -29,6 +29,8 @@ export async function GET() {
 
     console.log("Step 4: Gemini done. Stories:", topStories.length);
 
+    const batchId = new Date().toISOString();
+
     const newsToInsert = topStories
       .map((story) => {
         const article = candidates[story.articleId];
@@ -53,9 +55,15 @@ export async function GET() {
           reader_interest: story.readerInterest,
           duplicates: story.duplicateArticleIds.length,
           reason: story.reason,
+          summary_vi: story.summaryVi,
+          analysis_vi: story.analysisVi,
+          batch_id: batchId,
         };
       })
-      .filter(Boolean);
+      .filter(
+        (item): item is NonNullable<typeof item> =>
+          item !== null
+      );
 
     console.log(
       "Step 5: Prepared rows:",
