@@ -46,31 +46,37 @@ export default function NewsHome({ articles }: Props) {
 
   const text = {
     vi: {
-      eyebrow: "TOP 30 CÂU CHUYỆN CÔNG NGHỆ",
-      updated: "Được chọn và xếp hạng bằng AI",
-      score: "Điểm",
-      readMore: "Xem phân tích →",
-      footer: "Tổng hợp và phân tích tin công nghệ độc lập",
+      eyebrow: "TECHNOLOGY, CURATED DAILY",
+      heading: "30 tin công nghệ đáng chú ý nhất hôm nay.",
+      description:
+        "Được chọn lọc, xếp hạng và tóm tắt bằng AI để bạn nắm những gì thực sự đáng quan tâm.",
+      score: "AI Score",
+      readMore: "Xem phân tích",
+      footer: "Tin công nghệ được chọn lọc và phân tích bằng AI.",
     },
+
     en: {
-      eyebrow: "TOP 30 TECHNOLOGY STORIES",
-      updated: "Selected and ranked with AI",
-      score: "Score",
-      readMore: "Read analysis →",
-      footer: "Independent technology news aggregation and analysis",
+      eyebrow: "TECHNOLOGY, CURATED DAILY",
+      heading: "30 technology stories worth knowing today.",
+      description:
+        "Curated, ranked and summarized with AI so you can focus on what actually matters.",
+      score: "AI Score",
+      readMore: "Read analysis",
+      footer: "Technology news curated and analyzed with AI.",
     },
   }[language];
 
   return (
-    <main className="min-h-screen bg-[#09090b] text-white">
-      <div className="mx-auto max-w-6xl px-5 py-8 md:px-8 md:py-10">
+    <main className="min-h-screen bg-[#08090b] text-white">
+      <div className="mx-auto max-w-[1240px] px-5 pb-16 pt-7 md:px-10 md:pb-24 md:pt-9">
+
         {/* Header */}
-        <header className="mb-10 flex items-center justify-between">
+        <header className="flex items-center justify-between pb-8 md:pb-10">
           <Link
             href="/"
-            className="text-xl font-bold tracking-tight"
+            className="text-[22px] font-semibold tracking-[-0.04em] md:text-2xl"
           >
-            TECH<span className="text-white/40">NEWS</span>
+            <span className="text-[#5F8FF7]">TECH</span><span className="text-white/85">NEWS</span>
           </Link>
 
           <LanguageSwitcher
@@ -80,27 +86,31 @@ export default function NewsHome({ articles }: Props) {
         </header>
 
         {/* Intro */}
-        <section className="mb-8">
-          <p className="mb-3 text-xs font-medium tracking-[0.2em] text-white/40">
-            {text.eyebrow}
+        <section className="pb-10 pt-8 md:pb-14 md:pt-12">
+          <p className="mb-4 text-xs font-medium tracking-[0.22em] text-white/70 md:text-sm">
+            {language === "vi"
+              ? "TOP 30 CÂU CHUYỆN CÔNG NGHỆ"
+              : "TOP 30 TECHNOLOGY STORIES"}
           </p>
 
-          <p className="text-sm text-white/45">
-            {text.updated}
+          <p className="text-[14px] text-white/45 md:text-[15px]">
+            {language === "vi"
+              ? "Được chọn và xếp hạng bằng AI"
+              : "Selected and ranked with AI"}
           </p>
         </section>
 
         {/* News list */}
-        <section className="border-t border-white/10">
+        <section className="border-t border-white/12">
           {articles.map((article, index) => {
             const title =
               language === "vi"
-                ? article.titleVi
+                ? article.titleVi || article.title
                 : article.title;
 
             const description =
               language === "vi"
-                ? article.descriptionVi
+                ? article.descriptionVi || article.description
                 : article.description;
 
             const isFirst = index === 0;
@@ -109,22 +119,36 @@ export default function NewsHome({ articles }: Props) {
               <Link
                 key={article.id}
                 href={`/article/${article.id}`}
-                className="group block border-b border-white/10 py-6 transition-colors hover:bg-white/[0.025] md:py-7"
+                className="group block border-b border-white/10 transition-colors duration-300 hover:bg-white/[0.025]"
               >
-                <article className="flex gap-5 md:gap-8">
+                <article
+                  className={`grid gap-5 py-8 md:grid-cols-[76px_minmax(0,1fr)_220px] md:gap-8 md:py-10 ${
+                    isFirst
+                      ? "md:grid-cols-[76px_minmax(0,1fr)_300px] md:py-12"
+                      : ""
+                  }`}
+                >
                   {/* Rank */}
-                  <div className="w-8 shrink-0 pt-1 text-sm tabular-nums text-white/30 md:w-10">
-                    #{article.rank}
+                  <div className="flex items-start">
+                    <span
+                      className={`font-medium tabular-nums tracking-[-0.04em] ${
+                        isFirst
+                          ? "text-4xl text-[#377DFF] md:text-5xl"
+                          : "text-3xl text-white/22 md:text-4xl"
+                      }`}
+                    >
+                      {String(article.rank).padStart(2, "0")}
+                    </span>
                   </div>
 
                   {/* Content */}
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/35">
-                      <span className="font-medium text-white/55">
+                  <div className="min-w-0">
+                    <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px] text-white/35 md:text-sm">
+                      <span className="font-medium text-white/65">
                         {article.source}
                       </span>
 
-                      <span>•</span>
+                      <span className="text-white/20">•</span>
 
                       <span>
                         {formatDate(article.publishedAt, language)}
@@ -132,10 +156,10 @@ export default function NewsHome({ articles }: Props) {
                     </div>
 
                     <h2
-                      className={`max-w-3xl font-semibold tracking-tight transition-colors group-hover:text-white/80 ${
+                      className={`max-w-4xl font-semibold tracking-[-0.035em] transition-colors duration-300 group-hover:text-[#6EA0FF] ${
                         isFirst
-                          ? "text-2xl leading-tight md:text-3xl"
-                          : "text-lg leading-snug md:text-xl"
+                          ? "text-[30px] leading-[1.12] md:text-[40px] md:leading-[1.08]"
+                          : "text-[25px] leading-[1.18] md:text-[31px] md:leading-[1.15]"
                       }`}
                     >
                       {title}
@@ -143,26 +167,26 @@ export default function NewsHome({ articles }: Props) {
 
                     {description && (
                       <p
-                        className={`mt-2 max-w-3xl leading-relaxed text-white/45 ${
+                        className={`mt-4 max-w-3xl text-white/48 ${
                           isFirst
-                            ? "text-sm md:text-base"
-                            : "line-clamp-2 text-sm"
+                            ? "text-[17px] leading-7 md:text-[19px] md:leading-8"
+                            : "line-clamp-3 text-[16px] leading-7 md:text-[18px] md:leading-8"
                         }`}
                       >
                         {description}
                       </p>
                     )}
 
-                    <div className="mt-4 flex items-center gap-4 text-xs">
-                      <span className="text-white/35">
-                        {text.score}{" "}
-                        <span className="font-semibold text-white/65">
+                    <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+                      <span className="inline-flex items-center gap-2 text-white/40">
+                        {text.score}
+                        <span className="rounded-full bg-[#377DFF]/12 px-2.5 py-1 font-semibold text-[#72A2FF]">
                           {article.score?.toFixed(1)}
                         </span>
                       </span>
 
-                      <span className="text-white/35 transition-colors group-hover:text-white/70">
-                        {text.readMore}
+                      <span className="font-medium text-white/45 transition-colors duration-300 group-hover:text-[#6EA0FF]">
+                        {text.readMore} →
                       </span>
                     </div>
                   </div>
@@ -170,17 +194,19 @@ export default function NewsHome({ articles }: Props) {
                   {/* Image */}
                   {article.image && (
                     <div
-                      className={`relative shrink-0 overflow-hidden rounded-lg bg-white/5 ${
+                      className={`relative order-first overflow-hidden rounded-2xl bg-white/5 md:order-none ${
                         isFirst
-                          ? "h-32 w-44 md:h-40 md:w-60"
-                          : "h-24 w-32 md:h-28 md:w-44"
+                          ? "aspect-[16/10] md:h-[190px]"
+                          : "aspect-[16/10] md:h-[150px]"
                       }`}
                     >
                       <img
                         src={article.image}
                         alt=""
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
                       />
+
+                      <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/5" />
                     </div>
                   )}
                 </article>
@@ -190,7 +216,7 @@ export default function NewsHome({ articles }: Props) {
         </section>
 
         {/* Footer */}
-        <footer className="py-10 text-center text-xs text-white/25">
+        <footer className="pt-14 text-center text-sm text-white/25">
           {text.footer}
         </footer>
       </div>
