@@ -93,6 +93,26 @@ export async function GET(request: Request) {
     }
 
     console.log("Step 7: Supabase write successful.");
+    const { error: batchError } = await supabase
+      .from("news_batches")
+      .upsert(
+        {
+          batch_id: batchId,
+          story_count: newsToInsert.length,
+          status: "completed",
+        },
+        {
+          onConflict: "batch_id",
+        }
+      );
+
+    if (batchError) {
+      console.error("Batch history write error:", batchError);
+      throw new Error(batchError.message);
+    }
+
+    console.log("Step 8: Batch history saved.");
+
     console.log("=== REFRESH NEWS DONE ===");
 
     return NextResponse.json({
