@@ -2,6 +2,8 @@ import { getNewsFromSupabase } from "@/lib/supabase-news";
 
 import NewsHome from "./components/NewsHome";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const news = await getNewsFromSupabase();
 
