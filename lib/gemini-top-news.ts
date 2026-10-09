@@ -207,6 +207,11 @@ ${JSON.stringify(input)}
         required: ["stories"],
       },
     },
+  }, {
+    retries: {
+      strategy: "attempt-count-backoff",
+      maxRetries: 1,
+    },
   });
 
   console.log("=== GEMINI RAW RESPONSE ===");
