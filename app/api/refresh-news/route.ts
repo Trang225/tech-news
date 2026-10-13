@@ -54,9 +54,39 @@ export async function GET(request: Request) {
     console.log("Step 2: RSS done. Candidates:", candidates.length);
 
     console.log("Step 3: Calling Gemini...");
-    const topStories = await getTopNews(candidates);
+    let topStories;
 
-    console.log("Step 4: Gemini done. Stories:", topStories.length);
+    try {
+      topStories = await getTopNews(candidates);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+
+      if (!/429|quota|rate.limit/i.test(message)) {
+        throw error;
+      }
+
+      console.warn("Gemini quota exceeded. Using RSS fallback.");
+
+      topStories = candidates.slice(0, 30).map((article, articleId) => ({
+        articleId,
+        duplicateArticleIds: [],
+        score: null,
+        importance: null,
+        freshness: null,
+        readerInterest: null,
+        titleVi: article.title,
+        descriptionVi: article.description,
+        summaryVi: "",
+        analysisVi: "",
+        reason: "RSS fallback - not AI edited",
+      }));
+    }
+
+    if (topStories.length === 0) {
+      throw new Error("No news stories available.");
+    }
+
+    console.log("Step 4: Stories prepared:", topStories.length);
 
     const newsToInsert = topStories
       .map((story) => {

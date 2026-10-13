@@ -84,6 +84,12 @@ export default async function ArticlePage({ params }: Props) {
             )}
           </div>
 
+          {article.reason === "RSS fallback - not AI edited" && (
+            <p className="mb-4 text-sm text-amber-400">
+              Tin RSS gốc · Chưa được AI dịch và biên tập
+            </p>
+          )}
+
           <h1 className="max-w-4xl text-3xl font-bold leading-tight tracking-tight md:text-5xl">
             {article.title_vi}
           </h1>
