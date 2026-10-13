@@ -13,6 +13,12 @@ export async function GET(request: Request) {
       { status: 401 }
     );
   }
+
+  const batchId = new Date().toISOString();
+  let supabase: ReturnType<
+    typeof createClient<any, "public", any>
+  > | null = null;
+
   try {
     console.log("=== REFRESH NEWS START ===");
 
@@ -26,7 +32,21 @@ export async function GET(request: Request) {
       throw new Error("Supabase environment variables are missing");
     }
 
-    const supabase = createClient(url, secretKey);
+    supabase = createClient(url, secretKey);
+
+    const { error: startError } = await supabase
+      .from("news_batches")
+      .upsert(
+        {
+          batch_id: batchId,
+          story_count: 0,
+          status: "started",
+          error_message: null,
+        },
+        { onConflict: "batch_id" }
+      );
+
+    if (startError) throw new Error(startError.message);
 
     console.log("Step 1: Fetching RSS...");
     const candidates = await getTechNews();
@@ -37,8 +57,6 @@ export async function GET(request: Request) {
     const topStories = await getTopNews(candidates);
 
     console.log("Step 4: Gemini done. Stories:", topStories.length);
-
-    const batchId = new Date().toISOString();
 
     const newsToInsert = topStories
       .map((story) => {
@@ -100,6 +118,7 @@ export async function GET(request: Request) {
           batch_id: batchId,
           story_count: newsToInsert.length,
           status: "completed",
+          error_message: null,
         },
         {
           onConflict: "batch_id",
@@ -123,6 +142,28 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error("=== REFRESH NEWS ERROR ===");
     console.error(error);
+
+    if (supabase) {
+      try {
+        const { error: logError } = await supabase
+          .from("news_batches")
+          .upsert(
+            {
+              batch_id: batchId,
+              story_count: 0,
+              status: "failed",
+              error_message: (
+                error instanceof Error ? error.message : String(error)
+              ).slice(0, 2000),
+            },
+            { onConflict: "batch_id" }
+          );
+
+        if (logError) console.error("Failed to save error log:", logError);
+      } catch (logError) {
+        console.error("Failed to save error log:", logError);
+      }
+    }
 
     return NextResponse.json(
       {
